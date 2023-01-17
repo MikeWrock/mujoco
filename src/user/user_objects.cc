@@ -1363,21 +1363,17 @@ void mjCGeom::Compile(void) {
                      name.c_str(), id);
     }
 
-    // size[1] = length (for capsule and cylinder)
     double vec[3] = {
       fromto[0]-fromto[3],
       fromto[1]-fromto[4],
       fromto[2]-fromto[5]
     };
-    size[1] = mjuu_normvec(vec, 3)/2;
-    if (size[1]<mjEPS) {
+    
+    // length is size[1] for capsule and cylinder, size[2] for box and ellipsoid
+    const size_t length_idx = (type==mjGEOM_ELLIPSOID || type==mjGEOM_BOX) ? 2 : 1;
+    size[length_idx] = mjuu_normvec(vec, 3)/2;
+    if (size[length_idx]<mjEPS) {
       throw mjCError(this, "fromto points too close in geom '%s' (id = %d)", name.c_str(), id);
-    }
-
-    // adjust size for ellipsoid and box
-    if (type==mjGEOM_ELLIPSOID || type==mjGEOM_BOX) {
-      size[2] = size[1];
-      size[1] = size[0];
     }
 
     // compute position
